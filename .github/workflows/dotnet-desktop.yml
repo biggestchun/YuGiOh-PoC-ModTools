@@ -16,7 +16,6 @@ jobs:
 
     env:
       Solution_Name: YuGiOh_PoC_Patcher
-      Project_Path: YuGiOh_PoC_Patcher/YuGiOh_PoC_Patcher.csproj    # Replace with your project path
 
     steps:
     - name: Checkout
@@ -24,27 +23,29 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-
+    # Setup Visual Studio environment (includes .NET Framework)
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '[14.0,14.9]'  # VS 2015
 
-    - name: Restore NuGet packages
-      run: dotnet restore ${{ env.Solution_Name }}.sln
+    # Restore NuGet packages
+    - name: Restore NuGet Packages
+      run: nuget restore ${{ env.Solution_Name }}.sln
 
-    - name: Build
+    # Build the solution
+    - name: Build Solution
       run: |
-        msbuild ${{ env.Solution_Name }}.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=x64
+        msbuild ${{ env.Solution_Name }}.sln /p:Configuration=${{ matrix.configuration }} /p:Platform="Any CPU" /p:UseSharedCompilation=false
 
+    # Publish artifacts
     - name: Publish artifacts
       if: matrix.configuration == 'Release' && success()
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.Solution_Name }}-${{ matrix.configuration }}
         path: |
-          ${{ env.Project_Path }}/bin/${{ matrix.configuration }}/net8.0-windows
+          YuGiOh_PoC_Patcher/bin/${{ matrix.configuration }}
+          CustomControls/*/bin/${{ matrix.configuration }}
           !**/*.pdb
           !**/*.obj
