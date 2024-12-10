@@ -26,8 +26,6 @@ jobs:
     # Setup Visual Studio environment (includes .NET Framework)
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-      with:
-        vs-version: '[14.0,14.9]'  # VS 2015
 
     # Restore NuGet packages
     - name: Restore NuGet Packages
